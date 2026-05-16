@@ -6,24 +6,16 @@ struct Seanime_TVApp: App {
     
     var body: some Scene {
         WindowGroup {
-            if isConfigured {
-                DashboardView()
-                    .environment(\.serverReset, { isConfigured = false })
+            if isConfigured, let url = URL(string: Constants.baseURL) {
+                SeanimeWebView(url: url)
+                    .edgesIgnoringSafeArea(.all)
+                    .onLongPressGesture { // Reset IP if needed
+                        isConfigured = false
+                        Constants.baseURL = ""
+                    }
             } else {
                 ServerConfigView(isConfigured: $isConfigured)
             }
         }
-    }
-}
-
-// Global reset key
-private struct ServerResetKey: EnvironmentKey {
-    static let defaultValue: () -> Void = {}
-}
-
-extension EnvironmentValues {
-    var serverReset: () -> Void {
-        get { self[ServerResetKey.self] }
-        set { self[ServerResetKey.self] = newValue }
     }
 }
